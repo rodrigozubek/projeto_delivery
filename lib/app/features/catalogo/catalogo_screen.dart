@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 import '../../models/bebida.dart';
+import '../../models/cart_model.dart';
+import '../../cart_view.dart';
 import '../../repositories/bebidas_repository.dart';
 
 class CatalogoScreen extends StatefulWidget {
@@ -19,6 +22,25 @@ class _CatalogoScreenState extends State<CatalogoScreen> {
     super.initState();
     bebidasRepository = BebidasRepository();
     bebidas = bebidasRepository.loadBebidas();
+  }
+
+  void _adicionarAoCarrinho(BuildContext context, Bebida bebida) {
+    final cart = context.read<CartModel>();
+    cart.add(bebida);
+    ScaffoldMessenger.of(context).removeCurrentSnackBar();
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text('${bebida.nome} adicionado à sacola'),
+        duration: const Duration(seconds: 2),
+        action: SnackBarAction(
+          label: 'Ver sacola',
+          onPressed: () => Navigator.push(
+            context,
+            MaterialPageRoute(builder: (_) => const CartView()),
+          ),
+        ),
+      ),
+    );
   }
 
   @override
@@ -56,6 +78,7 @@ class _CatalogoScreenState extends State<CatalogoScreen> {
               ),
             ),
             onTap: () {
+              _adicionarAoCarrinho(context, bebida);
               ScaffoldMessenger.of(context).showSnackBar(
                 SnackBar(content: Text('${bebida.nome} selecionado')),
               );
@@ -65,7 +88,7 @@ class _CatalogoScreenState extends State<CatalogoScreen> {
         separatorBuilder: (context, index) => const Divider(height: 1),
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: () {},
+         onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const CartView())),
         backgroundColor: Colors.amber,
         child: const Icon(Icons.shopping_cart, color: Colors.black),
       ),
