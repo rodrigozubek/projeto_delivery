@@ -3,7 +3,7 @@ import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
 import '../../models/cart_model.dart';
-import '../../routes.dart';
+import '../../../routing/routes.dart';
 import 'catalogo_viewmodel.dart';
 
 class CatalogoScreen extends StatefulWidget {
@@ -39,10 +39,7 @@ class _CatalogoScreenState extends State<CatalogoScreen> {
       SnackBar(
         content: Text(_viewModel.feedback),
         duration: const Duration(seconds: 2),
-        action: SnackBarAction(
-          label: 'Ver sacola',
-          onPressed: _abrirSacola,
-        ),
+
       ),
     );
     _viewModel.clearFeedback();
@@ -269,15 +266,6 @@ class _CatalogoScreenState extends State<CatalogoScreen> {
             ),
           ),
         ],
-      ),
-      floatingActionButton: FloatingActionButton.extended(
-        onPressed: _abrirSacola,
-        backgroundColor: const Color(0xFFE85D04),
-        foregroundColor: Colors.white,
-        icon: const Icon(Icons.shopping_cart),
-        label: Text(
-          cart.itemCount == 0 ? 'Sacola' : 'Sacola (${cart.itemCount})',
-        ),
       ),
     );
   }

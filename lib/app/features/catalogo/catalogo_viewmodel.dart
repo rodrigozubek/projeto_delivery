@@ -40,7 +40,6 @@ class CatalogoViewModel extends ChangeNotifier {
     feedback = '${bebida.nome} adicionado a sacola';
     notifyListeners();
   }
-
   Future<bool> saveBebida({
     required String nome,
     required String descricao,

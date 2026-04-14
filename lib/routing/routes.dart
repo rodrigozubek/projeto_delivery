@@ -1,8 +1,8 @@
 import 'package:go_router/go_router.dart';
 
-import 'cart_view.dart';
-import 'features/catalogo/cadastrar_bebida_screen.dart';
-import 'features/catalogo/catalogo_screen.dart';
+import '../app/features/sacola/cart_view.dart';
+import '../app/features/catalogo/cadastrar_bebida_screen.dart';
+import '../app/features/catalogo/catalogo_screen.dart';
 
 class AppRoutes {
   static const catalogo = '/';

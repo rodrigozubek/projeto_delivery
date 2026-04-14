@@ -4,7 +4,7 @@ import 'package:provider/provider.dart';
 import 'features/catalogo/catalogo_viewmodel.dart';
 import 'models/cart_model.dart';
 import 'repositories/bebidas_repository.dart';
-import 'routes.dart';
+import '../routing/routes.dart';
 
 class App extends StatelessWidget {
   const App({super.key});
