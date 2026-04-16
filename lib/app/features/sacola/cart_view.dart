@@ -1,4 +1,7 @@
+import 'package:bebidasdelivery/routing/routes.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
+
 import 'package:provider/provider.dart';
 
 import '../../models/cart_model.dart';
@@ -187,16 +190,10 @@ class CartView extends StatelessWidget {
                                   child: FilledButton(
                                     onPressed: () {
                                       Navigator.of(context).pop();
+                                      context.push(AppRoutes.pagamento);
                                       cart.clear();
-                                      ScaffoldMessenger.of(context).showSnackBar(
-                                        const SnackBar(
-                                          content: Text(
-                                            'Checkout simulado com sucesso',
-                                          ),
-                                        ),
-                                      );
                                     },
-                                    child: const Text('Confirmar pagamento'),
+                                    child: const Text('realizar pagamento'),
                                   ),
                                 ),
                               ],
