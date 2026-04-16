@@ -6,7 +6,7 @@ Aplicativo Flutter desenvolvido para a disciplina de Desenvolvimento Movel. O pr
 
 - Rodrigo: configuracao inicial do projeto, organizacao da estrutura do app, catalogo de bebidas, navegacao, formulario de cadastro e ajustes gerais da interface.
 - Denner: implementacao e ajustes da tela de sacola.
-- Renato: atividade nao detalhada neste momento.
+- Renato: Implementação da tela de pagamento e seus formularios.
 
 ## Objetivo do aplicativo
 
