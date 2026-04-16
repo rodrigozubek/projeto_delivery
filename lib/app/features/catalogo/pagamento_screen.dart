@@ -70,7 +70,7 @@ class _PagamentoScreenState extends State<PagamentoScreen> {
                   return 'informe um valor';
                 }
                 if (value.trim().length < 8) {
-                  return 'O nome deve ter pelo menos 3 caracteres';
+                  return 'Numero de cartão invalido';
                 }
                 return null;
               },
@@ -92,7 +92,7 @@ class _PagamentoScreenState extends State<PagamentoScreen> {
                   return 'informe um valor';
                 }
                 if (value.trim().length < 3) {
-                  return 'O nome deve ter pelo menos 3 caracteres';
+                  return 'numero digitado menor do que 3';
                 }
                 return null;
               },
@@ -113,8 +113,8 @@ class _PagamentoScreenState extends State<PagamentoScreen> {
                 if(value == null || value.trim().isEmpty){
                   return 'informe um valor';
                 }
-                if (value.trim().length < 3) {
-                  return 'O nome deve ter pelo menos 3 caracteres';
+                if (value.trim().length < 4) {
+                  return 'digite a data corretamente';
                 }
                 return null;
               },
@@ -137,8 +137,8 @@ class _PagamentoScreenState extends State<PagamentoScreen> {
                 if(value == null || value.trim().isEmpty){
                   return 'informe um valor';
                 }
-                if (value.trim().length < 3) {
-                  return 'O nome deve ter pelo menos 3 caracteres';
+                if (value.trim().length < 10) {
+                  return 'O nome deve ter mais de 10 caracteres';
                 }
                 return null;
               },
