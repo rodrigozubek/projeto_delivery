@@ -8,14 +8,10 @@ class CatalogoViewModel extends ChangeNotifier {
   final BebidasRepository bebidasRepository;
   final CartModel cartModel;
 
-  CatalogoViewModel({
-    required this.bebidasRepository,
-    required this.cartModel,
-  });
+  CatalogoViewModel({required this.bebidasRepository, required this.cartModel});
 
   List<Bebida> bebidas = [];
   String feedback = '';
-  int _nextId = 3;
   bool isLoading = false;
   bool isSaving = false;
   String? errorMessage;
@@ -35,11 +31,12 @@ class CatalogoViewModel extends ChangeNotifier {
     }
   }
 
-  void addToCart(Bebida bebida) {
-    cartModel.add(bebida);
+  Future<void> addToCart(Bebida bebida) async {
+    await cartModel.add(bebida);
     feedback = '${bebida.nome} adicionado a sacola';
     notifyListeners();
   }
+
   Future<bool> saveBebida({
     required String nome,
     required String descricao,
@@ -54,7 +51,7 @@ class CatalogoViewModel extends ChangeNotifier {
     try {
       await bebidasRepository.addBebida(
         Bebida(
-          id: (_nextId++).toString(),
+          id: DateTime.now().millisecondsSinceEpoch.toString(),
           nome: nome,
           descricao: descricao,
           preco: preco,

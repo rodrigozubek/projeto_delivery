@@ -1,4 +1,3 @@
-import 'package:bebidasdelivery/app/features/sacola/cart_view.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:brasil_fields/brasil_fields.dart';
@@ -21,7 +20,7 @@ class _PagamentoScreenState extends State<PagamentoScreen> {
   final _dataValidadeCartaoController = TextEditingController();
   TipoCartao? _tipoCartao;
 
-  comprar(){
+  void comprar(){
     if(_formKey.currentState!.validate()){
       context.pop();
 
@@ -124,7 +123,7 @@ class _PagamentoScreenState extends State<PagamentoScreen> {
               controller: _nomeTitularCartaoController,
               decoration: InputDecoration(
                 border: OutlineInputBorder(),
-                labelText: 'data de validade' ,
+                labelText: 'Nome do titular do cartao' ,
               ),
               keyboardType: TextInputType.name,
               inputFormatters: [
