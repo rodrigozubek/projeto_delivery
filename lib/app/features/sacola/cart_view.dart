@@ -24,11 +24,13 @@ class CartView extends StatelessWidget {
           IconButton(
             icon: const Icon(Icons.delete_sweep),
             tooltip: 'Limpar sacola',
-            onPressed: entries.isEmpty ? null : () => cart.clear(),
+            onPressed: entries.isEmpty ? null : () async => cart.clear(),
           ),
         ],
       ),
-      body: entries.isEmpty
+      body: cart.isLoading
+          ? const Center(child: CircularProgressIndicator())
+          : entries.isEmpty
           ? const Center(
               child: Column(
                 mainAxisSize: MainAxisSize.min,
@@ -57,7 +59,7 @@ class CartView extends StatelessWidget {
                 return Dismissible(
                   key: ValueKey(bebida.id),
                   direction: DismissDirection.endToStart,
-                  onDismissed: (_) => cart.remove(bebida.id),
+                  onDismissed: (_) async => cart.remove(bebida.id),
                   background: Container(
                     alignment: Alignment.centerRight,
                     padding: const EdgeInsets.only(right: 20),
@@ -107,9 +109,7 @@ class CartView extends StatelessWidget {
                                   bebida.descricao,
                                   maxLines: 2,
                                   overflow: TextOverflow.ellipsis,
-                                  style: const TextStyle(
-                                    color: Colors.black54,
-                                  ),
+                                  style: const TextStyle(color: Colors.black54),
                                 ),
                                 const SizedBox(height: 8),
                                 Text(
@@ -125,7 +125,7 @@ class CartView extends StatelessWidget {
                             children: [
                               IconButton(
                                 icon: const Icon(Icons.add_circle_outline),
-                                onPressed: () =>
+                                onPressed: () async =>
                                     cart.changeQuantity(bebida.id, 1),
                               ),
                               Text(
@@ -136,7 +136,7 @@ class CartView extends StatelessWidget {
                               ),
                               IconButton(
                                 icon: const Icon(Icons.remove_circle_outline),
-                                onPressed: () =>
+                                onPressed: () async =>
                                     cart.changeQuantity(bebida.id, -1),
                               ),
                             ],
@@ -188,10 +188,10 @@ class CartView extends StatelessWidget {
                                 SizedBox(
                                   width: double.infinity,
                                   child: FilledButton(
-                                    onPressed: () {
+                                    onPressed: () async {
                                       Navigator.of(context).pop();
                                       context.push(AppRoutes.pagamento);
-                                      cart.clear();
+                                      await cart.clear();
                                     },
                                     child: const Text('realizar pagamento'),
                                   ),
@@ -209,10 +209,7 @@ class CartView extends StatelessWidget {
                 mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text(
-                    'Total',
-                    style: TextStyle(color: Colors.black54),
-                  ),
+                  const Text('Total', style: TextStyle(color: Colors.black54)),
                   Text(
                     'R\$ ${cart.total.toStringAsFixed(2)}',
                     style: const TextStyle(
@@ -227,11 +224,7 @@ class CartView extends StatelessWidget {
                 return Column(
                   mainAxisSize: MainAxisSize.min,
                   crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    total,
-                    const SizedBox(height: 12),
-                    button,
-                  ],
+                  children: [total, const SizedBox(height: 12), button],
                 );
               }
 
