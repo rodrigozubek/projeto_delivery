@@ -5,7 +5,7 @@ import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 
 class AppDatabase {
   static const _databaseName = 'bebidas_delivery.db';
-  static const _databaseVersion = 2;
+  static const _databaseVersion = 3;
 
   Database? _database;
 
@@ -52,12 +52,18 @@ class AppDatabase {
     ''');
 
     await _createUsersTable(db);
+    await _createPedidosTable(db);
     await _seedBebidas(db);
+    await _seedUsers(db);
   }
 
   Future<void> _onUpgrade(Database db, int oldVersion, int newVersion) async {
     if (oldVersion < 2) {
       await _createUsersTable(db);
+    }
+    if (oldVersion < 3) {
+      await _createPedidosTable(db);
+      await _seedUsers(db);
     }
   }
 
@@ -71,6 +77,30 @@ class AppDatabase {
         created_at TEXT NOT NULL
       )
     ''');
+  }
+
+  Future<void> _createPedidosTable(Database db) async {
+    await db.execute('''
+      CREATE TABLE IF NOT EXISTS pedidos (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        id_bebida TEXT NOT NULL,
+        id_usuario TEXT NOT NULL,
+        preco_total REAL NOT NULL,
+        quantidade INTEGER NOT NULL,
+        FOREIGN KEY (id_bebida) REFERENCES bebidas (id),
+        FOREIGN KEY (id_usuario) REFERENCES users (id)
+      )
+    ''');
+  }
+
+  Future<void> _seedUsers(Database db) async {
+    await db.insert('users', {
+      'id': '1',
+      'nome': 'Usuário Demonstração',
+      'email': 'demo@example.com',
+      'password_hash': 'dummy',
+      'created_at': DateTime.now().toIso8601String(),
+    }, conflictAlgorithm: ConflictAlgorithm.ignore);
   }
 
   Future<void> _seedBebidas(Database db) async {

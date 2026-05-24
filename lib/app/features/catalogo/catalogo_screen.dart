@@ -53,6 +53,10 @@ class _CatalogoScreenState extends State<CatalogoScreen> {
     context.push(AppRoutes.cadastrarBebida);
   }
 
+  void _abrirPedidos() {
+    context.push(AppRoutes.pedidos);
+  }
+
   @override
   Widget build(BuildContext context) {
     final vm = context.watch<CatalogoViewModel>();
@@ -65,6 +69,11 @@ class _CatalogoScreenState extends State<CatalogoScreen> {
         surfaceTintColor: Colors.transparent,
         title: const Text('Catálogo de Bebidas'),
         actions: [
+          IconButton(
+            onPressed: _abrirPedidos,
+            icon: const Icon(Icons.receipt_long),
+            tooltip: 'Meus pedidos',
+          ),
           IconButton(
             onPressed: _abrirCadastro,
             icon: const Icon(Icons.add),

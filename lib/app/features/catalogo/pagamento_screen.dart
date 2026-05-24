@@ -2,7 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:brasil_fields/brasil_fields.dart';
 import 'package:go_router/go_router.dart';
+import 'package:provider/provider.dart';
 
+import '../../models/cart_model.dart';
+import '../../repositories/pedidos_repository.dart';
+import '../../../routing/routes.dart';
 
 class PagamentoScreen extends StatefulWidget {
   const PagamentoScreen({super.key});
@@ -10,7 +14,8 @@ class PagamentoScreen extends StatefulWidget {
   @override
   State<PagamentoScreen> createState() => _PagamentoScreenState();
 }
-  enum TipoCartao { credito, debito, alimentacao }
+
+enum TipoCartao { credito, debito, alimentacao }
 
 class _PagamentoScreenState extends State<PagamentoScreen> {
   final _formKey = GlobalKey<FormState>();
@@ -20,13 +25,39 @@ class _PagamentoScreenState extends State<PagamentoScreen> {
   final _dataValidadeCartaoController = TextEditingController();
   TipoCartao? _tipoCartao;
 
-  void comprar(){
-    if(_formKey.currentState!.validate()){
-      context.pop();
+  Future<void> comprar() async {
+    if (_formKey.currentState!.validate()) {
+      final cart = context.read<CartModel>();
+      final pedidosRepo = context.read<PedidosRepository>();
 
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Compra realizada com sucesso'))
-        );
+      // Usando ID de usuario fixo para demonstração (conforme seed)
+      const userId = '1';
+
+      try {
+        for (final item in cart.items) {
+          await pedidosRepo.cadastrarPedido(
+            idBebida: item.bebida.id,
+            idUsuario: userId,
+            precoTotal: item.bebida.preco * item.quantity,
+            quantidade: item.quantity,
+          );
+        }
+
+        await cart.clear();
+
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Compra realizada com sucesso')),
+          );
+          context.go(AppRoutes.catalogo);
+        }
+      } catch (e) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Erro ao processar pedido: $e')),
+          );
+        }
+      }
     }
   }
 

@@ -7,6 +7,7 @@ import 'models/cart_model.dart';
 import 'repositories/bebidas_repository.dart';
 import 'repositories/cart_repository.dart';
 import 'repositories/users_repository.dart';
+import 'repositories/pedidos_repository.dart';
 import '../routing/routes.dart';
 
 class App extends StatelessWidget {
@@ -28,6 +29,10 @@ class App extends StatelessWidget {
         Provider(
           create: (context) =>
               UsersRepository(appDatabase: context.read<AppDatabase>()),
+        ),
+        Provider(
+          create: (context) =>
+              PedidosRepository(appDatabase: context.read<AppDatabase>()),
         ),
         ChangeNotifierProvider(
           create: (context) =>

@@ -191,7 +191,6 @@ class CartView extends StatelessWidget {
                                     onPressed: () async {
                                       Navigator.of(context).pop();
                                       context.push(AppRoutes.pagamento);
-                                      await cart.clear();
                                     },
                                     child: const Text('realizar pagamento'),
                                   ),
