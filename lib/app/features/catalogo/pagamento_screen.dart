@@ -34,14 +34,17 @@ class _PagamentoScreenState extends State<PagamentoScreen> {
       const userId = '1';
 
       try {
-        for (final item in cart.items) {
-          await pedidosRepo.cadastrarPedido(
-            idBebida: item.bebida.id,
-            idUsuario: userId,
-            precoTotal: item.bebida.preco * item.quantity,
-            quantidade: item.quantity,
-          );
-        }
+        final itensInput = cart.items.map((e) => PedidoItemInput(
+          idBebida: e.bebida.id,
+          quantidade: e.quantity,
+          precoUnitario: e.bebida.preco,
+        )).toList();
+
+        await pedidosRepo.cadastrarPedido(
+          idUsuario: userId,
+          precoTotal: cart.total,
+          itens: itensInput,
+        );
 
         await cart.clear();
 

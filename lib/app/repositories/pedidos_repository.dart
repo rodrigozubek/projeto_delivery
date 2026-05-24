@@ -1,4 +1,5 @@
 import '../database/app_database.dart';
+import '../models/pedido.dart';
 
 class PedidosRepository {
   final AppDatabase appDatabase;
@@ -6,33 +7,90 @@ class PedidosRepository {
   PedidosRepository({required this.appDatabase});
 
   Future<void> cadastrarPedido({
-    required String idBebida,
     required String idUsuario,
     required double precoTotal,
-    required int quantidade,
+    required List<PedidoItemInput> itens,
   }) async {
     final db = await appDatabase.database;
-    await db.insert('pedidos', {
-      'id_bebida': idBebida,
-      'id_usuario': idUsuario,
-      'preco_total': precoTotal,
-      'quantidade': quantidade,
+
+    await db.transaction((txn) async {
+      // 1. Inserir o pedido principal
+      final pedidoId = await txn.insert('pedidos', {
+        'id_usuario': idUsuario,
+        'preco_total': precoTotal,
+        'data_pedido': DateTime.now().toIso8601String(),
+      });
+
+      // 2. Inserir todos os itens vinculados a este pedido
+      for (final item in itens) {
+        await txn.insert('pedido_items', {
+          'id_pedido': pedidoId,
+          'id_bebida': item.idBebida,
+          'quantidade': item.quantidade,
+          'preco_unitario': item.precoUnitario,
+        });
+      }
     });
   }
 
-  Future<List<Map<String, dynamic>>> retornarPedidos() async {
+  Future<List<Pedido>> retornarPedidos() async {
     final db = await appDatabase.database;
-    return await db.rawQuery('''
+
+    // Buscar todos os pedidos com o nome do usuário
+    final pedidosRows = await db.rawQuery('''
       SELECT 
         p.id,
-        b.nome as nome_bebida,
-        u.nome as nome_usuario,
         p.preco_total,
-        p.quantidade
+        u.nome as nome_usuario
       FROM pedidos p
-      INNER JOIN bebidas b ON p.id_bebida = b.id
       INNER JOIN users u ON p.id_usuario = u.id
       ORDER BY p.id DESC
     ''');
+
+    List<Pedido> listaPedidos = [];
+
+    for (final row in pedidosRows) {
+      final pedidoId = row['id'] as int;
+
+      // Buscar os itens deste pedido específico
+      final itensRows = await db.rawQuery('''
+        SELECT 
+          pi.quantidade,
+          pi.preco_unitario,
+          b.nome as nome_bebida
+        FROM pedido_items pi
+        INNER JOIN bebidas b ON pi.id_bebida = b.id
+        WHERE pi.id_pedido = ?
+      ''', [pedidoId]);
+
+      final itens = itensRows.map((itemRow) {
+        return PedidoItem(
+          nomeBebida: itemRow['nome_bebida'] as String,
+          quantidade: itemRow['quantidade'] as int,
+          precoUnitario: (itemRow['preco_unitario'] as num).toDouble(),
+        );
+      }).toList();
+
+      listaPedidos.add(Pedido(
+        id: pedidoId,
+        nomeUsuario: row['nome_usuario'] as String,
+        precoTotal: (row['preco_total'] as num).toDouble(),
+        itens: itens,
+      ));
+    }
+
+    return listaPedidos;
   }
+}
+
+class PedidoItemInput {
+  final String idBebida;
+  final int quantidade;
+  final double precoUnitario;
+
+  PedidoItemInput({
+    required this.idBebida,
+    required this.quantidade,
+    required this.precoUnitario,
+  });
 }

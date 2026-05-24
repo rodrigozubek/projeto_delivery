@@ -5,7 +5,7 @@ import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 
 class AppDatabase {
   static const _databaseName = 'bebidas_delivery.db';
-  static const _databaseVersion = 3;
+  static const _databaseVersion = 4;
 
   Database? _database;
 
@@ -52,7 +52,7 @@ class AppDatabase {
     ''');
 
     await _createUsersTable(db);
-    await _createPedidosTable(db);
+    await _createPedidosTables(db);
     await _seedBebidas(db);
     await _seedUsers(db);
   }
@@ -62,8 +62,15 @@ class AppDatabase {
       await _createUsersTable(db);
     }
     if (oldVersion < 3) {
-      await _createPedidosTable(db);
+      await db.execute('DROP TABLE IF EXISTS pedidos');
+      await _createPedidosTables(db);
       await _seedUsers(db);
+    }
+    if (oldVersion < 4) {
+      // Re-criando tabelas para a nova estrutura de agrupamento
+      await db.execute('DROP TABLE IF EXISTS pedidos');
+      await db.execute('DROP TABLE IF EXISTS pedido_items');
+      await _createPedidosTables(db);
     }
   }
 
@@ -79,16 +86,26 @@ class AppDatabase {
     ''');
   }
 
-  Future<void> _createPedidosTable(Database db) async {
+  Future<void> _createPedidosTables(Database db) async {
     await db.execute('''
       CREATE TABLE IF NOT EXISTS pedidos (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
-        id_bebida TEXT NOT NULL,
         id_usuario TEXT NOT NULL,
         preco_total REAL NOT NULL,
-        quantidade INTEGER NOT NULL,
-        FOREIGN KEY (id_bebida) REFERENCES bebidas (id),
+        data_pedido TEXT NOT NULL,
         FOREIGN KEY (id_usuario) REFERENCES users (id)
+      )
+    ''');
+
+    await db.execute('''
+      CREATE TABLE IF NOT EXISTS pedido_items (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        id_pedido INTEGER NOT NULL,
+        id_bebida TEXT NOT NULL,
+        quantidade INTEGER NOT NULL,
+        preco_unitario REAL NOT NULL,
+        FOREIGN KEY (id_pedido) REFERENCES pedidos (id),
+        FOREIGN KEY (id_bebida) REFERENCES bebidas (id)
       )
     ''');
   }

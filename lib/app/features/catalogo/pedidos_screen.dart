@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../repositories/pedidos_repository.dart';
+import '../../models/pedido.dart';
 
 class PedidosScreen extends StatefulWidget {
   const PedidosScreen({super.key});
@@ -10,7 +11,7 @@ class PedidosScreen extends StatefulWidget {
 }
 
 class _PedidosScreenState extends State<PedidosScreen> {
-  late Future<List<Map<String, dynamic>>> _pedidosFuture;
+  late Future<List<Pedido>> _pedidosFuture;
 
   @override
   void initState() {
@@ -27,7 +28,7 @@ class _PedidosScreenState extends State<PedidosScreen> {
         surfaceTintColor: Colors.transparent,
         title: const Text('Meus Pedidos'),
       ),
-      body: FutureBuilder<List<Map<String, dynamic>>>(
+      body: FutureBuilder<List<Pedido>>(
         future: _pedidosFuture,
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
@@ -70,14 +71,14 @@ class _PedidosScreenState extends State<PedidosScreen> {
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           Text(
-                            'Pedido #${pedido['id']}',
+                            'Pedido #${pedido.id}',
                             style: const TextStyle(
                               fontWeight: FontWeight.bold,
                               fontSize: 16,
                             ),
                           ),
                           Text(
-                            'R\$ ${pedido['preco_total'].toStringAsFixed(2)}',
+                            'R\$ ${pedido.precoTotal.toStringAsFixed(2)}',
                             style: const TextStyle(
                               color: Colors.green,
                               fontWeight: FontWeight.bold,
@@ -88,18 +89,25 @@ class _PedidosScreenState extends State<PedidosScreen> {
                       ),
                       const Divider(height: 24),
                       Text(
-                        'Cliente: ${pedido['nome_usuario']}',
+                        'Cliente: ${pedido.nomeUsuario}',
                         style: const TextStyle(color: Colors.black87),
                       ),
+                      const SizedBox(height: 8),
+                      const Text(
+                        'Itens do pedido:',
+                        style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
+                      ),
                       const SizedBox(height: 4),
-                      Text(
-                        'Produto: ${pedido['nome_bebida']}',
-                        style: const TextStyle(fontWeight: FontWeight.w500),
-                      ),
-                      Text(
-                        'Quantidade: ${pedido['quantidade']}',
-                        style: const TextStyle(color: Colors.black54),
-                      ),
+                      ...pedido.itens.map((item) => Padding(
+                        padding: const EdgeInsets.only(bottom: 4),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text('${item.quantidade}x ${item.nomeBebida}'),
+                            Text('R\$ ${(item.precoUnitario * item.quantidade).toStringAsFixed(2)}'),
+                          ],
+                        ),
+                      )),
                     ],
                   ),
                 ),
