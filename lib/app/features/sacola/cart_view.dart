@@ -161,43 +161,60 @@ class CartView extends StatelessWidget {
                     : () {
                         showModalBottomSheet(
                           context: context,
+                          isScrollControlled: true,
                           useSafeArea: true,
-                          builder: (_) => Padding(
-                            padding: const EdgeInsets.all(20),
-                            child: Column(
-                              mainAxisSize: MainAxisSize.min,
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                const Text(
-                                  'Resumo do pedido',
-                                  style: TextStyle(
-                                    fontSize: 20,
-                                    fontWeight: FontWeight.w700,
-                                  ),
+                          builder: (sheetContext) {
+                            final bottomPadding = MediaQuery.of(
+                              sheetContext,
+                            ).padding.bottom;
+
+                            return SafeArea(
+                              top: false,
+                              child: SingleChildScrollView(
+                                padding: EdgeInsets.fromLTRB(
+                                  20,
+                                  20,
+                                  20,
+                                  20 + bottomPadding,
                                 ),
-                                const SizedBox(height: 12),
-                                ...entries.map(
-                                  (entry) => Padding(
-                                    padding: const EdgeInsets.only(bottom: 8),
-                                    child: Text(
-                                      '${entry.quantity} x ${entry.bebida.nome} - R\$ ${(entry.bebida.preco * entry.quantity).toStringAsFixed(2)}',
+                                child: Column(
+                                  mainAxisSize: MainAxisSize.min,
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    const Text(
+                                      'Resumo do pedido',
+                                      style: TextStyle(
+                                        fontSize: 20,
+                                        fontWeight: FontWeight.w700,
+                                      ),
                                     ),
-                                  ),
+                                    const SizedBox(height: 12),
+                                    ...entries.map(
+                                      (entry) => Padding(
+                                        padding: const EdgeInsets.only(
+                                          bottom: 8,
+                                        ),
+                                        child: Text(
+                                          '${entry.quantity} x ${entry.bebida.nome} - R\$ ${(entry.bebida.preco * entry.quantity).toStringAsFixed(2)}',
+                                        ),
+                                      ),
+                                    ),
+                                    const SizedBox(height: 12),
+                                    SizedBox(
+                                      width: double.infinity,
+                                      child: FilledButton(
+                                        onPressed: () async {
+                                          Navigator.of(sheetContext).pop();
+                                          context.push(AppRoutes.pagamento);
+                                        },
+                                        child: const Text('realizar pagamento'),
+                                      ),
+                                    ),
+                                  ],
                                 ),
-                                const SizedBox(height: 12),
-                                SizedBox(
-                                  width: double.infinity,
-                                  child: FilledButton(
-                                    onPressed: () async {
-                                      Navigator.of(context).pop();
-                                      context.push(AppRoutes.pagamento);
-                                    },
-                                    child: const Text('realizar pagamento'),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
+                              ),
+                            );
+                          },
                         );
                       },
                 icon: const Icon(Icons.payment),
