@@ -1,5 +1,3 @@
-import 'bebida.dart';
-
 class Pedido {
   final int? id;
   final String nomeUsuario;
