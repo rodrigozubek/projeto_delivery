@@ -5,7 +5,7 @@ import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 
 class AppDatabase {
   static const _databaseName = 'bebidas_delivery.db';
-  static const _databaseVersion = 4;
+  static const _databaseVersion = 7;
 
   Database? _database;
 
@@ -64,7 +64,6 @@ class AppDatabase {
     if (oldVersion < 3) {
       await db.execute('DROP TABLE IF EXISTS pedidos');
       await _createPedidosTables(db);
-      await _seedUsers(db);
     }
     if (oldVersion < 4) {
       // Re-criando tabelas para a nova estrutura de agrupamento
@@ -72,15 +71,33 @@ class AppDatabase {
       await db.execute('DROP TABLE IF EXISTS pedido_items');
       await _createPedidosTables(db);
     }
+    if (oldVersion < 5) {
+      await db.execute('DROP TABLE IF EXISTS pedido_items');
+      await db.execute('DROP TABLE IF EXISTS pedidos');
+      await db.execute('DROP TABLE IF EXISTS users');
+      await _createUsersTable(db);
+      await _createPedidosTables(db);
+      await _seedUsers(db);
+    }
+    if (oldVersion == 5) {
+      await db.execute(
+        "ALTER TABLE users ADD COLUMN role TEXT NOT NULL DEFAULT 'comprador'",
+      );
+      await _seedUsers(db);
+    }
+    if (oldVersion < 7) {
+      await _seedUsers(db);
+    }
   }
 
   Future<void> _createUsersTable(Database db) async {
     await db.execute('''
       CREATE TABLE IF NOT EXISTS users (
-        id TEXT PRIMARY KEY,
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
         nome TEXT NOT NULL,
         email TEXT NOT NULL UNIQUE,
         password_hash TEXT NOT NULL,
+        role TEXT NOT NULL DEFAULT 'comprador',
         created_at TEXT NOT NULL
       )
     ''');
@@ -90,7 +107,7 @@ class AppDatabase {
     await db.execute('''
       CREATE TABLE IF NOT EXISTS pedidos (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
-        id_usuario TEXT NOT NULL,
+        id_usuario INTEGER NOT NULL,
         preco_total REAL NOT NULL,
         data_pedido TEXT NOT NULL,
         FOREIGN KEY (id_usuario) REFERENCES users (id)
@@ -111,11 +128,51 @@ class AppDatabase {
   }
 
   Future<void> _seedUsers(Database db) async {
+    await _upsertSeedUser(
+      db,
+      id: 1,
+      nome: 'Usuario',
+      email: 'usuario@bebidas.com',
+      role: 'comprador',
+    );
+
+    await _upsertSeedUser(
+      db,
+      id: 2,
+      nome: 'Administrador',
+      email: 'admin@bebidas.com',
+      role: 'admin',
+    );
+  }
+
+  Future<void> _upsertSeedUser(
+    Database db, {
+    required int id,
+    required String nome,
+    required String email,
+    required String role,
+  }) async {
+    const passwordHash =
+        '8d969eef6ecad3c29a3a629280e686cf0c3f5d5a86aff3ca12020c923adc6c92';
+    final values = {
+      'nome': nome,
+      'email': email,
+      'password_hash': passwordHash,
+      'role': role,
+    };
+
+    final updated = await db.update(
+      'users',
+      values,
+      where: 'id = ?',
+      whereArgs: [id],
+    );
+
+    if (updated > 0) return;
+
     await db.insert('users', {
-      'id': '1',
-      'nome': 'Usuário Demonstração',
-      'email': 'demo@example.com',
-      'password_hash': 'dummy',
+      'id': id,
+      ...values,
       'created_at': DateTime.now().toIso8601String(),
     }, conflictAlgorithm: ConflictAlgorithm.ignore);
   }

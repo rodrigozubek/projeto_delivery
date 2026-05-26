@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
+import '../../models/auth_model.dart';
 import '../../models/cart_model.dart';
 import '../../../routing/routes.dart';
 import 'catalogo_viewmodel.dart';
@@ -57,10 +58,18 @@ class _CatalogoScreenState extends State<CatalogoScreen> {
     context.push(AppRoutes.pedidos);
   }
 
+  Future<void> _sair() async {
+    final cart = context.read<CartModel>();
+    await cart.clear();
+    if (!mounted) return;
+    context.read<AuthModel>().logout();
+  }
+
   @override
   Widget build(BuildContext context) {
     final vm = context.watch<CatalogoViewModel>();
     final cart = context.watch<CartModel>();
+    final auth = context.watch<AuthModel>();
 
     return Scaffold(
       backgroundColor: const Color(0xFFF8F6F2),
@@ -74,11 +83,12 @@ class _CatalogoScreenState extends State<CatalogoScreen> {
             icon: const Icon(Icons.receipt_long),
             tooltip: 'Meus pedidos',
           ),
-          IconButton(
-            onPressed: _abrirCadastro,
-            icon: const Icon(Icons.add),
-            tooltip: 'Cadastrar bebida',
-          ),
+          if (auth.isAdmin)
+            IconButton(
+              onPressed: _abrirCadastro,
+              icon: const Icon(Icons.add),
+              tooltip: 'Cadastrar bebida',
+            ),
           Stack(
             children: [
               IconButton(
@@ -104,6 +114,11 @@ class _CatalogoScreenState extends State<CatalogoScreen> {
                   ),
                 ),
             ],
+          ),
+          IconButton(
+            onPressed: _sair,
+            icon: const Icon(Icons.logout),
+            tooltip: 'Sair',
           ),
           const SizedBox(width: 8),
         ],

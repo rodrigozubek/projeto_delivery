@@ -7,7 +7,7 @@ class PedidosRepository {
   PedidosRepository({required this.appDatabase});
 
   Future<void> cadastrarPedido({
-    required String idUsuario,
+    required int idUsuario,
     required double precoTotal,
     required List<PedidoItemInput> itens,
   }) async {
@@ -33,7 +33,7 @@ class PedidosRepository {
     });
   }
 
-  Future<List<Pedido>> retornarPedidos() async {
+  Future<List<Pedido>> retornarPedidos({int? idUsuario}) async {
     final db = await appDatabase.database;
 
     // Buscar todos os pedidos com o nome do usuário
@@ -44,8 +44,9 @@ class PedidosRepository {
         u.nome as nome_usuario
       FROM pedidos p
       INNER JOIN users u ON p.id_usuario = u.id
+      ${idUsuario == null ? '' : 'WHERE p.id_usuario = ?'}
       ORDER BY p.id DESC
-    ''');
+    ''', idUsuario == null ? [] : [idUsuario]);
 
     List<Pedido> listaPedidos = [];
 

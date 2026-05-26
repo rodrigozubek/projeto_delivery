@@ -4,6 +4,7 @@ import 'package:brasil_fields/brasil_fields.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
+import '../../models/auth_model.dart';
 import '../../models/cart_model.dart';
 import '../../repositories/pedidos_repository.dart';
 import '../../../routing/routes.dart';
@@ -25,23 +26,48 @@ class _PagamentoScreenState extends State<PagamentoScreen> {
   final _dataValidadeCartaoController = TextEditingController();
   TipoCartao? _tipoCartao;
 
+  @override
+  void dispose() {
+    _numeroCartaoController.dispose();
+    _numeroCVCController.dispose();
+    _nomeTitularCartaoController.dispose();
+    _dataValidadeCartaoController.dispose();
+    super.dispose();
+  }
+
   Future<void> comprar() async {
     if (_formKey.currentState!.validate()) {
       final cart = context.read<CartModel>();
+      final auth = context.read<AuthModel>();
       final pedidosRepo = context.read<PedidosRepository>();
 
-      // Usando ID de usuario fixo para demonstração (conforme seed)
-      const userId = '1';
+      final user = auth.currentUser;
+      if (user == null) {
+        context.go(AppRoutes.login);
+        return;
+      }
+
+      if (cart.items.isEmpty) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Sua sacola esta vazia')),
+        );
+        context.go(AppRoutes.catalogo);
+        return;
+      }
 
       try {
-        final itensInput = cart.items.map((e) => PedidoItemInput(
-          idBebida: e.bebida.id,
-          quantidade: e.quantity,
-          precoUnitario: e.bebida.preco,
-        )).toList();
+        final itensInput = cart.items
+            .map(
+              (e) => PedidoItemInput(
+                idBebida: e.bebida.id,
+                quantidade: e.quantity,
+                precoUnitario: e.bebida.preco,
+              ),
+            )
+            .toList();
 
         await pedidosRepo.cadastrarPedido(
-          idUsuario: userId,
+          idUsuario: user.id,
           precoTotal: cart.total,
           itens: itensInput,
         );
@@ -199,6 +225,7 @@ class _PagamentoScreenState extends State<PagamentoScreen> {
                       setState(() {
                         _tipoCartao = valor;
                       });
+                      state.didChange(valor);
                     },
                   ),
                   RadioListTile<TipoCartao>(
@@ -211,6 +238,7 @@ class _PagamentoScreenState extends State<PagamentoScreen> {
                       setState(() {
                         _tipoCartao = valor;
                       });
+                      state.didChange(valor);
                     },
                   ),
                 RadioListTile<TipoCartao>(
@@ -223,6 +251,7 @@ class _PagamentoScreenState extends State<PagamentoScreen> {
                     setState(() {
                       _tipoCartao = valor;
                     });
+                    state.didChange(valor);
                   },
                 ),
                 if (state.hasError)

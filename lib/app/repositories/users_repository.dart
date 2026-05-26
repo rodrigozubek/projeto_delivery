@@ -15,24 +15,30 @@ class UsersRepository {
     required String nome,
     required String email,
     required String password,
+    UserRole role = UserRole.comprador,
   }) async {
     final db = await appDatabase.database;
     final normalizedEmail = email.trim().toLowerCase();
-    final user = AppUser(
-      id: DateTime.now().millisecondsSinceEpoch.toString(),
-      nome: nome.trim(),
-      email: normalizedEmail,
-      passwordHash: _hashPassword(password),
-      createdAt: DateTime.now(),
-    );
+    final createdAt = DateTime.now();
+    final passwordHash = _hashPassword(password);
 
     try {
-      await db.insert(
-        'users',
-        user.toMap(),
-        conflictAlgorithm: ConflictAlgorithm.abort,
+      final userId = await db.insert('users', {
+        'nome': nome.trim(),
+        'email': normalizedEmail,
+        'password_hash': passwordHash,
+        'role': role.databaseValue,
+        'created_at': createdAt.toIso8601String(),
+      }, conflictAlgorithm: ConflictAlgorithm.abort);
+
+      return AppUser(
+        id: userId,
+        nome: nome.trim(),
+        email: normalizedEmail,
+        passwordHash: passwordHash,
+        role: role,
+        createdAt: createdAt,
       );
-      return user;
     } on DatabaseException catch (error) {
       if (error.isUniqueConstraintError()) {
         throw Exception('Ja existe um usuario cadastrado com esse email.');

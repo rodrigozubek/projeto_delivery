@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
 import 'database/app_database.dart';
 import 'features/catalogo/catalogo_viewmodel.dart';
+import 'models/auth_model.dart';
 import 'models/cart_model.dart';
 import 'repositories/bebidas_repository.dart';
 import 'repositories/cart_repository.dart';
@@ -36,6 +38,10 @@ class App extends StatelessWidget {
         ),
         ChangeNotifierProvider(
           create: (context) =>
+              AuthModel(usersRepository: context.read<UsersRepository>()),
+        ),
+        ChangeNotifierProvider(
+          create: (context) =>
               CartModel(cartRepository: context.read<CartRepository>())..load(),
         ),
         ChangeNotifierProvider(
@@ -45,12 +51,34 @@ class App extends StatelessWidget {
           )..load(),
         ),
       ],
-      child: MaterialApp.router(
-        title: 'Delivery de Bebidas',
-        debugShowCheckedModeBanner: false,
-        theme: ThemeData(primarySwatch: Colors.orange, useMaterial3: true),
-        routerConfig: appRouter,
-      ),
+      child: const _AppRouter(),
+    );
+  }
+}
+
+class _AppRouter extends StatefulWidget {
+  const _AppRouter();
+
+  @override
+  State<_AppRouter> createState() => _AppRouterState();
+}
+
+class _AppRouterState extends State<_AppRouter> {
+  late final GoRouter _router;
+
+  @override
+  void initState() {
+    super.initState();
+    _router = createAppRouter(context.read<AuthModel>());
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp.router(
+      title: 'Delivery de Bebidas',
+      debugShowCheckedModeBanner: false,
+      theme: ThemeData(primarySwatch: Colors.orange, useMaterial3: true),
+      routerConfig: _router,
     );
   }
 }
