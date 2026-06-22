@@ -5,7 +5,7 @@ import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 
 class AppDatabase {
   static const _databaseName = 'bebidas_delivery.db';
-  static const _databaseVersion = 7;
+  static const _databaseVersion = 8;
 
   Database? _database;
 
@@ -52,6 +52,7 @@ class AppDatabase {
     ''');
 
     await _createUsersTable(db);
+    await _createSessionTable(db);
     await _createPedidosTables(db);
     await _seedBebidas(db);
     await _seedUsers(db);
@@ -88,6 +89,9 @@ class AppDatabase {
     if (oldVersion < 7) {
       await _seedUsers(db);
     }
+    if (oldVersion < 8) {
+      await _createSessionTable(db);
+    }
   }
 
   Future<void> _createUsersTable(Database db) async {
@@ -99,6 +103,16 @@ class AppDatabase {
         password_hash TEXT NOT NULL,
         role TEXT NOT NULL DEFAULT 'comprador',
         created_at TEXT NOT NULL
+      )
+    ''');
+  }
+
+  Future<void> _createSessionTable(Database db) async {
+    await db.execute('''
+      CREATE TABLE IF NOT EXISTS app_session (
+        id INTEGER PRIMARY KEY CHECK (id = 1),
+        user_id INTEGER NOT NULL,
+        FOREIGN KEY (user_id) REFERENCES users (id)
       )
     ''');
   }

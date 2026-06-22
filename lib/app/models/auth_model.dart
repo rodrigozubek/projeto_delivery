@@ -7,6 +7,7 @@ class AuthModel extends ChangeNotifier {
   final UsersRepository usersRepository;
 
   AppUser? _currentUser;
+  bool isInitializing = true;
   bool isLoading = false;
   String? errorMessage;
 
@@ -17,6 +18,20 @@ class AuthModel extends ChangeNotifier {
   bool get isAuthenticated => _currentUser != null;
 
   bool get isAdmin => _currentUser?.role == UserRole.admin;
+
+  Future<void> restoreSession() async {
+    isInitializing = true;
+    notifyListeners();
+
+    try {
+      _currentUser = await usersRepository.loadCurrentUser();
+    } catch (_) {
+      _currentUser = null;
+    } finally {
+      isInitializing = false;
+      notifyListeners();
+    }
+  }
 
   Future<bool> login({
     required String email,
@@ -38,6 +53,7 @@ class AuthModel extends ChangeNotifier {
       }
 
       _currentUser = user;
+      await usersRepository.saveCurrentUser(user);
       return true;
     } catch (_) {
       errorMessage = 'Nao foi possivel entrar. Tente novamente.';
@@ -63,6 +79,7 @@ class AuthModel extends ChangeNotifier {
         email: email,
         password: password,
       );
+      await usersRepository.saveCurrentUser(_currentUser!);
       return true;
     } catch (error) {
       errorMessage = error.toString().replaceFirst('Exception: ', '');
@@ -73,7 +90,8 @@ class AuthModel extends ChangeNotifier {
     }
   }
 
-  void logout() {
+  Future<void> logout() async {
+    await usersRepository.clearCurrentUser();
     _currentUser = null;
     errorMessage = null;
     notifyListeners();

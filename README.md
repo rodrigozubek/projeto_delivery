@@ -58,6 +58,15 @@ Senha: 123456
 - pagamento simulado
 - gravação de pedidos no SQLite
 - listagem de pedidos do usuário logado
+- busca de endereco por CEP usando a API HTTP ViaCEP
+- captura de foto pela camera no checkout de bebidas alcoolicas
+- sessao persistente para manter o usuario logado ao reiniciar o app
+
+## Requisitos da Parte 2
+
+- API externa via HTTP: a tela de pagamento consulta o ViaCEP pelo CEP informado e preenche rua, bairro, cidade e UF.
+- Recurso nativo: quando a sacola tem bebida alcoolica, a tela de pagamento exige uma foto pela camera do Android para confirmar maioridade.
+- Melhoria final: o login fica salvo em uma tabela de sessao no SQLite e e restaurado quando o app abre novamente.
 
 ## Estrutura do projeto
 
@@ -81,6 +90,7 @@ Principais arquivos:
 - `lib/app/repositories/bebidas_repository.dart`: acesso aos dados das bebidas
 - `lib/app/repositories/cart_repository.dart`: persistência da sacola
 - `lib/app/repositories/pedidos_repository.dart`: cadastro e consulta de pedidos
+- `lib/app/services/via_cep_service.dart`: consulta HTTP da API ViaCEP
 - `lib/app/features/auth/login_screen.dart`: tela de login
 - `lib/app/features/auth/cadastro_screen.dart`: tela de cadastro de usuário
 - `lib/app/features/catalogo/catalogo_screen.dart`: tela principal do catálogo

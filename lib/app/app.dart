@@ -38,7 +38,8 @@ class App extends StatelessWidget {
         ),
         ChangeNotifierProvider(
           create: (context) =>
-              AuthModel(usersRepository: context.read<UsersRepository>()),
+              AuthModel(usersRepository: context.read<UsersRepository>())
+                ..restoreSession(),
         ),
         ChangeNotifierProvider(
           create: (context) =>

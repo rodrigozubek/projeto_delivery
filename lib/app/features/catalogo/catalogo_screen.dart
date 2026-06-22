@@ -62,7 +62,7 @@ class _CatalogoScreenState extends State<CatalogoScreen> {
     final cart = context.read<CartModel>();
     await cart.clear();
     if (!mounted) return;
-    context.read<AuthModel>().logout();
+    await context.read<AuthModel>().logout();
   }
 
   @override

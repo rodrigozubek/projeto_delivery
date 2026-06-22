@@ -60,6 +60,19 @@ class UsersRepository {
     return AppUser.fromMap(rows.first);
   }
 
+  Future<AppUser?> findById(int id) async {
+    final db = await appDatabase.database;
+    final rows = await db.query(
+      'users',
+      where: 'id = ?',
+      whereArgs: [id],
+      limit: 1,
+    );
+
+    if (rows.isEmpty) return null;
+    return AppUser.fromMap(rows.first);
+  }
+
   Future<AppUser?> validateLogin({
     required String email,
     required String password,
@@ -71,6 +84,34 @@ class UsersRepository {
     if (user.passwordHash != passwordHash) return null;
 
     return user;
+  }
+
+  Future<void> saveCurrentUser(AppUser user) async {
+    final db = await appDatabase.database;
+    await db.insert('app_session', {
+      'id': 1,
+      'user_id': user.id,
+    }, conflictAlgorithm: ConflictAlgorithm.replace);
+  }
+
+  Future<AppUser?> loadCurrentUser() async {
+    final db = await appDatabase.database;
+    final rows = await db.query('app_session', where: 'id = ?', whereArgs: [1]);
+
+    if (rows.isEmpty) return null;
+
+    final userId = (rows.first['user_id'] as num).toInt();
+    final user = await findById(userId);
+    if (user == null) {
+      await clearCurrentUser();
+    }
+
+    return user;
+  }
+
+  Future<void> clearCurrentUser() async {
+    final db = await appDatabase.database;
+    await db.delete('app_session', where: 'id = ?', whereArgs: [1]);
   }
 
   String _hashPassword(String password) {

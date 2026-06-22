@@ -24,6 +24,10 @@ GoRouter createAppRouter(AuthModel authModel) {
     initialLocation: AppRoutes.login,
     refreshListenable: authModel,
     redirect: (context, state) {
+      if (authModel.isInitializing) {
+        return null;
+      }
+
       final isAuthRoute =
           state.matchedLocation == AppRoutes.login ||
           state.matchedLocation == AppRoutes.cadastro;
