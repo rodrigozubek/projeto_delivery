@@ -60,21 +60,15 @@ class _CadastrarBebidaScreenState extends State<CadastrarBebidaScreen> {
     final vm = context.watch<CatalogoViewModel>();
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF8F6F2),
       appBar: AppBar(
-        backgroundColor: const Color(0xFFF8F6F2),
-        surfaceTintColor: Colors.transparent,
         title: const Text('Cadastrar Bebida'),
       ),
       body: Form(
         key: _formKey,
         child: ListView(
-          padding: const EdgeInsets.all(16),
+          padding: const EdgeInsets.fromLTRB(16, 8, 16, 24),
           children: [
-            const Text(
-              'Preencha os campos para adicionar uma nova bebida ao catalogo.',
-              style: TextStyle(fontSize: 16, color: Colors.black54),
-            ),
+            const _CadastroBebidaHeader(),
             const SizedBox(height: 16),
             _FormCard(
               child: Column(
@@ -83,7 +77,7 @@ class _CadastrarBebidaScreenState extends State<CadastrarBebidaScreen> {
                     controller: _nomeController,
                     decoration: _inputDecoration(
                       label: 'Nome da bebida',
-                      icon: Icons.local_drink,
+                      icon: Icons.local_drink_outlined,
                     ),
                     validator: (value) {
                       if (value == null || value.trim().isEmpty) {
@@ -101,7 +95,7 @@ class _CadastrarBebidaScreenState extends State<CadastrarBebidaScreen> {
                     maxLines: 3,
                     decoration: _inputDecoration(
                       label: 'Descricao',
-                      icon: Icons.notes,
+                      icon: Icons.notes_outlined,
                     ).copyWith(alignLabelWithHint: true),
                     validator: (value) {
                       if (value == null || value.trim().isEmpty) {
@@ -137,8 +131,11 @@ class _CadastrarBebidaScreenState extends State<CadastrarBebidaScreen> {
                     },
                   ),
                   const SizedBox(height: 16),
-                  Material(
-                    color: Colors.transparent,
+                  Container(
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFFFF8F1),
+                      borderRadius: BorderRadius.circular(12),
+                    ),
                     child: SwitchListTile(
                       value: _isAlcoolica,
                       title: const Text('Bebida alcoolica'),
@@ -156,11 +153,6 @@ class _CadastrarBebidaScreenState extends State<CadastrarBebidaScreen> {
             const SizedBox(height: 20),
             FilledButton.icon(
               onPressed: vm.isSaving ? null : _salvar,
-              style: FilledButton.styleFrom(
-                backgroundColor: const Color(0xFFE85D04),
-                foregroundColor: Colors.white,
-                padding: const EdgeInsets.symmetric(vertical: 14),
-              ),
               icon: vm.isSaving
                   ? const SizedBox(
                       width: 18,
@@ -171,7 +163,10 @@ class _CadastrarBebidaScreenState extends State<CadastrarBebidaScreen> {
                       ),
                     )
                   : const Icon(Icons.save),
-              label: Text(vm.isSaving ? 'Salvando...' : 'Salvar bebida'),
+              label: Padding(
+                padding: const EdgeInsets.all(12),
+                child: Text(vm.isSaving ? 'Salvando...' : 'Salvar bebida'),
+              ),
             ),
           ],
         ),
@@ -186,7 +181,50 @@ class _CadastrarBebidaScreenState extends State<CadastrarBebidaScreen> {
     return InputDecoration(
       labelText: label,
       prefixIcon: Icon(icon),
-      border: const OutlineInputBorder(),
+    );
+  }
+}
+
+class _CadastroBebidaHeader extends StatelessWidget {
+  const _CadastroBebidaHeader();
+
+  @override
+  Widget build(BuildContext context) {
+    return Material(
+      color: const Color(0xFF212121),
+      borderRadius: BorderRadius.circular(18),
+      child: const Padding(
+        padding: EdgeInsets.all(18),
+        child: Row(
+          children: [
+            CircleAvatar(
+              backgroundColor: Color(0xFFE85D04),
+              child: Icon(Icons.add, color: Colors.white),
+            ),
+            SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Nova bebida',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 22,
+                      fontWeight: FontWeight.w900,
+                    ),
+                  ),
+                  SizedBox(height: 4),
+                  Text(
+                    'Cadastre produtos para aparecerem no catalogo.',
+                    style: TextStyle(color: Colors.white70),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }
@@ -203,6 +241,13 @@ class _FormCard extends StatelessWidget {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.04),
+            blurRadius: 18,
+            offset: const Offset(0, 8),
+          ),
+        ],
       ),
       child: child,
     );

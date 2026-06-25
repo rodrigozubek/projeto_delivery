@@ -78,7 +78,44 @@ class _AppRouterState extends State<_AppRouter> {
     return MaterialApp.router(
       title: 'Delivery de Bebidas',
       debugShowCheckedModeBanner: false,
-      theme: ThemeData(primarySwatch: Colors.orange, useMaterial3: true),
+      theme: ThemeData(
+        colorScheme: ColorScheme.fromSeed(
+          seedColor: const Color(0xFFE85D04),
+          primary: const Color(0xFFE85D04),
+          secondary: const Color(0xFF2E7D32),
+          surface: Colors.white,
+        ),
+        scaffoldBackgroundColor: const Color(0xFFF8F6F2),
+        useMaterial3: true,
+        appBarTheme: const AppBarTheme(
+          backgroundColor: Color(0xFFF8F6F2),
+          surfaceTintColor: Colors.transparent,
+          centerTitle: false,
+          titleTextStyle: TextStyle(
+            color: Color(0xFF212121),
+            fontSize: 20,
+            fontWeight: FontWeight.w800,
+          ),
+        ),
+        filledButtonTheme: FilledButtonThemeData(
+          style: FilledButton.styleFrom(
+            backgroundColor: const Color(0xFFE85D04),
+            foregroundColor: Colors.white,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
+            ),
+          ),
+        ),
+        inputDecorationTheme: InputDecorationTheme(
+          filled: true,
+          fillColor: const Color(0xFFFBFAF8),
+          border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+          enabledBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(12),
+            borderSide: BorderSide(color: Colors.grey.shade300),
+          ),
+        ),
+      ),
       routerConfig: _router,
     );
   }
